@@ -3,6 +3,8 @@ import { Form, Icon, Input, Button, Row, Col } from 'antd';
 import io from 'socket.io-client';
 import { connect } from 'react-redux';
 import moment from 'moment';
+import { getChats, afterPostMessage } from '../../../_actions/chat_action';
+import ChatCard from './Sections/ChatCard';
 
 export class ChatPage extends Component {
   state = {
@@ -12,10 +14,13 @@ export class ChatPage extends Component {
   componentDidMount() {
     let server = 'http://localhost:5000';
 
+    this.props.dispatch(getChats());
+
     this.socket = io(server);
 
     this.socket.on('Output Chat Message', messageFromBackEnd => {
       console.log(messageFromBackEnd);
+      this.props.dispatch(afterPostMessage(messageFromBackEnd));
     });
   }
 
@@ -25,6 +30,10 @@ export class ChatPage extends Component {
     });
   };
 
+  renderCards = () =>
+    this.props.chats.chats &&
+    this.props.chats.chats.map(chat => <ChatCard key={chat._id} {...chat} />);
+
   submitChatMessage = e => {
     e.preventDefault();
 
@@ -33,7 +42,7 @@ export class ChatPage extends Component {
     let userName = this.props.user.userData.name;
     let userImage = this.props.user.userData.image;
     let nowTime = moment();
-    let type = 'Image';
+    let type = 'Text';
 
     this.socket.emit('Input Chat Message', {
       chatMessage,
@@ -58,9 +67,7 @@ export class ChatPage extends Component {
 
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <div className='infinite-container'>
-            {/* {this.props.chats && (
-                            <div>{this.renderCards()}</div>
-                        )} */}
+            {this.props.chats && this.renderCards()}
             <div
               ref={el => {
                 this.messagesEnd = el;
@@ -105,7 +112,8 @@ export class ChatPage extends Component {
 
 const mapStateToProps = state => {
   return {
-    user: state.user
+    user: state.user,
+    chats: state.chat
   };
 };
 
