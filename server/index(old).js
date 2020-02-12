@@ -105,45 +105,19 @@ io.on('connection', socket => {
     foods.push(food);
   });
 
-  socket.on('eaten', function(data3, abc) {
-    if (data3 != null) {
-      // var blobEat = socket.id + ' ' + data3;
-      // console.log(blobEat);
-      // blobs.splice(data3, 1);
-      var elementPos = blobs
-        .map(function(x) {
-          return x.id;
-        })
-        .indexOf(data3);
-      console.log('Client has disconnected ' + socket.id);
-      console.log(blobs);
-      if (elementPos > -1) {
-        blobs.splice(elementPos, 1);
-      }
-      data3 = null;
-      abc(data3);
-    }
-  });
-
   socket.on('update', function(data, data2) {
     var blob;
-
-    for (var i = blobs.length - 1; i >= 0; i--) {
+    for (var i = 0; i < blobs.length; i++) {
       if (socket.id == blobs[i].id) {
         blob = blobs[i];
       }
     }
 
-    try {
-      blob.x = data.x;
-      blob.y = data.y;
-      blob.r = data.r;
-    } catch (err) {
-      // console.log(err);
-    }
+    blob.x = data.x;
+    blob.y = data.y;
+    blob.r = data.r;
 
     if (data2 != null) {
-      // console.log(socket.id + ' ' + data2);
       foods.splice(data2, 1);
       data2 = null;
     }
@@ -155,10 +129,10 @@ io.on('connection', socket => {
         return x.id;
       })
       .indexOf(socket.id);
-    console.log('Client has disconnected ' + socket.id);
-    console.log(blobs);
+    console.log('Client has disconnected' + socket.id);
     if (elementPos > -1) {
       blobs.splice(elementPos, 1);
+      console.log(blobs);
     }
   });
 });
